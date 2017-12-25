@@ -1,0 +1,6 @@
+ALT+F : GIT更新
+ALT+G : GIT提交
+CTRL + ALT + V == ALT+S : 自动补全变量名称
+CTRL + ALT + F : 自动补全属性名称
+CTRL + SHIFT + U : 大小写转换
+CTRL + ALT + T : TRY/CATCH/FINALLY
