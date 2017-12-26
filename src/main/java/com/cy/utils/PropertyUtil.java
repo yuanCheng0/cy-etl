@@ -9,7 +9,7 @@ import java.util.Properties;
 
 /**
  * 读取配置文件工具类
- * Created by 成圆 on 2017/12/25 23:14.
+ * Created by cy on 2017/12/25 23:14.
  */
 public class PropertyUtil {
     private static Logger log = LoggerFactory.getLogger(PropertyUtil.class);

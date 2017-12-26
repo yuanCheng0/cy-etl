@@ -13,7 +13,7 @@ import java.io.IOException;
 
 /**
  * Hbase工具类
- * Created by 成圆 on 2017/12/24 16:27.
+ * Created by cy on 2017/12/24 16:27.
  */
 public class HbaseUtil {
     private static Logger log = LoggerFactory.getLogger(HbaseUtil.class);
