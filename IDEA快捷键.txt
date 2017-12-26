@@ -1,3 +1,4 @@
+http://idea.java.sx/
 ALT+F : GIT更新
 ALT+G : GIT提交
 CTRL + ALT + V == ALT+S : 自动补全变量名称
