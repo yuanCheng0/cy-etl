@@ -1,7 +1,7 @@
-package com.cy.common;
+package com.cy.constants;
 
 /**
- * Created by 成圆 on 2017/12/25 23:47.
+ * Created by cy on 2017/12/25 23:47.
  */
 public class Constants {
     //Hbase配置

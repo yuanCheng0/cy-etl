@@ -28,7 +28,7 @@ public class PropertyUtil {
         try {
             prop.load(PropertyUtil.class.getClassLoader().getResourceAsStream(properties));
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("获取流失败，",e);
         }
         return propertyUtil;
     }
