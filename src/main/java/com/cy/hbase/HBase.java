@@ -29,7 +29,7 @@ public class HBase {
     }
 
     public static void put(String tableName, List<Put> puts,boolean isWaiting){
-        hBaseService.batchPut(tableName,puts,isWaiting);
+        hBaseService.put(tableName,puts,isWaiting);
     }
 
     /**

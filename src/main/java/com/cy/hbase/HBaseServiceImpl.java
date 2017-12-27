@@ -60,7 +60,8 @@ public class HBaseServiceImpl extends AbstractHBaseService{
      * @param puts
      * @param isWaiting
      */
-    public void batchAsyncPut(final String tableName,final List<Put> puts,boolean isWaiting){
+    @Override
+    public void put(final String tableName,final List<Put> puts,boolean isWaiting){
         Future f = threadPool.submit(new Runnable() {
             @Override
             public void run() {

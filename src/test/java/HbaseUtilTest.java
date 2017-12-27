@@ -1,6 +1,10 @@
+import com.cy.hbase.HBase;
 import com.cy.utils.HbaseUtil;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cy on 2017/12/25 23:53.
@@ -18,10 +22,23 @@ public class HbaseUtilTest {
 //        }
 //        System.out.println(HbaseUtil.getRow("students","Jack"));
 //        HbaseUtil.createSnapshotTable("students");
-        Put put = new Put(Bytes.toBytes("1001"));
-        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("height"),Bytes.toBytes(1.8));
-        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("weight"),Bytes.toBytes(60));
-        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("yaowei"),Bytes.toBytes("80cm"));
-        HbaseUtil.put("students",put);
+        Put put = new Put(Bytes.toBytes("1007"));
+        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("height"),Bytes.toBytes("1.7m"));
+        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("weight"),Bytes.toBytes("55kg"));
+        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("yaowei"),Bytes.toBytes("70cm"));
+        Put put1 = new Put(Bytes.toBytes("1008"));
+        put1.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("height"),Bytes.toBytes("1.72m"));
+        put1.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("weight"),Bytes.toBytes("52kg"));
+        put1.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("yaowei"),Bytes.toBytes("72cm"));
+        Put put2 = new Put(Bytes.toBytes("1009"));
+        put2.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("height"),Bytes.toBytes("1.73m"));
+        put2.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("weight"),Bytes.toBytes("53kg"));
+        put2.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("yaowei"),Bytes.toBytes("73cm"));
+        List<Put> puts = new ArrayList<>();
+        puts.add(put);
+        puts.add(put1);
+        puts.add(put2);
+        HBase.put("students",puts,true);
+//        HbaseUtil.put("students",put);
         }
         }
