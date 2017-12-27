@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -429,6 +430,61 @@ public class HbaseUtil {
         return null;
     }
 
+    /**
+     * 异步添加数据
+     * @param originalTableName
+     * @param puts
+     */
+    public static void put(String originalTableName, List<Put> puts){
+        final BufferedMutator.ExceptionListener listener = new BufferedMutator.ExceptionListener() {
+            @Override
+            public void onException(RetriesExhaustedWithDetailsException exception, BufferedMutator mutator) throws RetriesExhaustedWithDetailsException {
+                for (int i = 0; i < exception.getNumExceptions();i++){
+                    log.error("导入数据失败：" + exception.getRow(i) + ".");
+                }
+            }
+        };
+        BufferedMutator mutator = null;
+        try {
+            BufferedMutatorParams params = new BufferedMutatorParams(TableName.valueOf(originalTableName))
+                    .listener(listener);
+            mutator = getConn().getBufferedMutator(params);
+            mutator.mutate(puts);
+            mutator.flush();
+            log.info("导入数据成功！");
+        } catch (IOException e) {
+            log.error("导入失败：" + e);
+        } finally {
+            IOUtils.closeStream(mutator);
+            close();
+        }
+    }
+
+    public static void put(String originalTableName,Put put) {
+        put(originalTableName, Arrays.asList(put));
+    }
+    /**
+     * 添加数据
+     * @param originalTableName 表名
+     * @param puts 需要添加的数据
+     */
+   /* public static void put1(String originalTableName,List<?> puts) {
+        long currentTime = System.currentTimeMillis();
+        Connection conn = getConn();
+        Table table = getTable(originalTableName);
+        try {
+            //table.setAutoFlushTo(false);
+            //table.setWriteBufferSize(5 * 1024 * 1024);
+            table.put((List<Put>)puts);
+            //table.flushCommits();
+            log.info("导入数据成功！");
+        } catch (IOException e) {
+            log.error("添加数据失败：" + e);
+        }finally {
+            IOUtils.closeStream(table);
+            close();
+        }
+    }*/
     /**
      * 删除单条数据
      * @param originalTableName 表名

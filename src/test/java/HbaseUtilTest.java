@@ -1,10 +1,6 @@
 import com.cy.utils.HbaseUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
-
-import java.util.Iterator;
 
 /**
  * Created by cy on 2017/12/25 23:53.
@@ -21,6 +17,11 @@ public class HbaseUtilTest {
 //            System.out.println("======================");
 //        }
 //        System.out.println(HbaseUtil.getRow("students","Jack"));
-        HbaseUtil.createSnapshotTable("students");
-    }
-}
+//        HbaseUtil.createSnapshotTable("students");
+        Put put = new Put(Bytes.toBytes("1001"));
+        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("height"),Bytes.toBytes(1.8));
+        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("weight"),Bytes.toBytes(60));
+        put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("yaowei"),Bytes.toBytes("80cm"));
+        HbaseUtil.put("students",put);
+        }
+        }

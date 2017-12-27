@@ -16,7 +16,7 @@ public abstract class AbstractHBaseService implements HBaseService{
     }
 
     @Override
-    public void put(String tableName, Put put, boolean waiting) {
+    public void put(String tableName,List<Put> puts, boolean waiting) {
 
     }
 
