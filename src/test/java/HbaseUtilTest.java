@@ -1,16 +1,17 @@
-import com.cy.hbase.HBase;
 import com.cy.utils.HbaseUtil;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.TableDescriptors;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Admin;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 /**
  * Created by cy on 2017/12/25 23:53.
  */
 public class HbaseUtilTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //        HbaseUtil.addFamilyName("students","bodyInfo");
 //        ResultScanner results = HbaseUtil.getAll("students");
 //        Iterator<Result> iterator = results.iterator();
@@ -22,7 +23,7 @@ public class HbaseUtilTest {
 //        }
 //        System.out.println(HbaseUtil.getRow("students","Jack"));
 //        HbaseUtil.createSnapshotTable("students");
-        Put put = new Put(Bytes.toBytes("1007"));
+       /* Put put = new Put(Bytes.toBytes("1007"));
         put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("height"),Bytes.toBytes("1.7m"));
         put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("weight"),Bytes.toBytes("55kg"));
         put.addColumn(Bytes.toBytes("bodyInfo"),Bytes.toBytes("yaowei"),Bytes.toBytes("70cm"));
@@ -38,7 +39,13 @@ public class HbaseUtilTest {
         puts.add(put);
         puts.add(put1);
         puts.add(put2);
-        HBase.put("students",puts,true);
+        HBase.put("students",puts,true);*/
 //        HbaseUtil.put("students",put);
-        }
-        }
+        Admin admin = HbaseUtil.getConn().getAdmin();
+        TableName tableName = TableName.valueOf("students");
+        HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+        HColumnDescriptor hColumnDescriptor = new HColumnDescriptor("bodyInfo");
+        tableDescriptor.addCoprocessor("com.cy.hbase.coprocessor.MyRegionObserver");
+//        tableDescriptor.modifyFamily(hColumnDescriptor);
+        admin.modifyTable(tableName,tableDescriptor);
+    }}
