@@ -1,4 +1,3 @@
-/*
 package com.cy.spark.spark练习
 
 import java.text.SimpleDateFormat
@@ -6,8 +5,9 @@ import java.util.Date
 
 import kafka.serializer.StringDecoder
 import org.apache.commons.lang3.StringUtils
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Row, types}
 import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.dstream.InputDStream
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -16,29 +16,47 @@ import org.apache.spark.{SparkConf, SparkContext}
 object KafkaStreaming {
 
   def main(args: Array[String]): Unit = {
-    var masterUrl = "local[1]"
+//    var masterUrl = "local[2]"
+    var masterUrl = "spark://hadoop.single:7077"
     if(args.length > 0 ){
       masterUrl = args(0)
     }
 //    val properties: util.List[String] = JsonU.readProperties(file)
     //构建spark streaming 上下文
     val conf = new SparkConf().setMaster(masterUrl).setAppName("spark streaming application")
-    val sc = new SparkContext(conf)
     val ssc = new StreamingContext(conf,Seconds(5))
-    val hiveContext = new HiveContext(sc)
+    val hc = new HiveContext(ssc.sparkContext)
     ssc.checkpoint("D:\\checkpoint")
     val topics = Set("web_log")
-    val brokers = "10.10.4.126:9092,10.10.4.127:9092"
+    val brokers = "192.168.72.120:9092"
     val kafkaParams = Map[String,String]("metadata.broker.list" -> brokers, "serializer.class" -> "kafka.serializer.StringEncoder")
     val orginLogDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc,kafkaParams,topics)
     //处理数据
-    parseLog(sc,orginLogDStream)
+    parseLog(hc,orginLogDStream)
     //启动、等待执行结束、关闭
     ssc.start()
     ssc.awaitTermination()
   }
+  def parseLog(hc: HiveContext,orginLogDStream: InputDStream[(String, String)]): Unit = {
+    val schemaString  = "name,age"
+    val fields = schemaString .split(",")
+    val schema = types.StructType(fields.map(fieldname => StructField(fieldname,StringType, true)))
+   orginLogDStream.foreachRDD(rdd => {
+     val rowRdd = rdd.filter(data => data._2.split(" ")(1) != "18").map(data => {
+       val line = data._2.split(" ")
+       Row(line(0), line(1))
+     })
+     val logDataFrame = hc.createDataFrame(rowRdd,schema)
+     logDataFrame.registerTempTable("log_tmp")
+     val sql = "insert into people select name,age from log_tmp"
+     hc.sql(sql)
+   })
+  }
+
+
   //处理数据
-  def parseLog(sc: SparkContext,orginLogDStream: InputDStream[(String, String)]): Unit = {
+/*
+  def parseLog(sc: HiveContext,orginLogDStream: InputDStream[(String, String)]): Unit = {
     //最后需要实时维护的的是每天接收数据的总条数，pageEvent数据总条数,pageData数据总条数,错误数据总条数
     val errorLines:List[String] = null
 //    val errorLinesRdd = sc.parallelize(errorLines)
@@ -130,5 +148,5 @@ object KafkaStreaming {
       })
     })*/
   }
-}
 */
+}
