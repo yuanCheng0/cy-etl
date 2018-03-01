@@ -1,10 +1,13 @@
-package com.cy.spark.spark练习;
+package spark;
 
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
 
 public class MockRealTimeData extends Thread {
 	
@@ -38,7 +41,7 @@ public class MockRealTimeData extends Thread {
 			
 			/*String log = new Date().getTime() + " " + province + " " + city + " "
 					+ random.nextInt(1000) + " " + random.nextInt(10);  */
-			String log = "小张|20";
+			String log = "小张";
 			producer.send(new KeyedMessage<Integer, String>("chengyuan", log));
 			System.out.println("发送成功。。。。。。。。");
 			try {

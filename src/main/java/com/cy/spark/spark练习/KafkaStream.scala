@@ -12,8 +12,8 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 object KafkaStream {
 
   def main(args: Array[String]): Unit = {
-        var masterUrl = "local[1]"
-//    var masterUrl = "spark://hadoop.single:7077"
+    var masterUrl = "local[2]"
+    //    var masterUrl = "spark://hadoop.single:7077"
     if(args.length > 0 ){
       masterUrl = args(0)
     }
@@ -22,18 +22,19 @@ object KafkaStream {
     val conf = new SparkConf().setMaster(masterUrl).setAppName("spark streaming application")
     val ssc = new StreamingContext(conf,Seconds(5))
     val hc = new HiveContext(ssc.sparkContext)
-    ssc.checkpoint("D:\\checkpoint")
+    //    ssc.checkpoint("D:\\checkpoint")
     val topics = Set("web_log")
     val brokers = "192.168.72.120:9092"
     val kafkaParams = Map[String,String]("metadata.broker.list" -> brokers, "serializer.class" -> "kafka.serializer.StringEncoder")
     val orginLogDStream = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc,kafkaParams,topics)
     //处理数据
-    parseLog(hc,orginLogDStream)
+    //    parseLog(hc,orginLogDStream)
     //启动、等待执行结束、关闭
+    orginLogDStream.flatMap(_._2.split("|")).print()
     ssc.start()
     ssc.awaitTermination()
   }
-  def parseLog(hc: HiveContext,orginLogDStream: InputDStream[(String, String)]): Unit = {
+  /*def parseLog(hc: HiveContext,orginLogDStream: InputDStream[(String, String)]): Unit = {
     val schemaString  = "name,age"
     val fields = schemaString .split(",")
     val schema = types.StructType(fields.map(fieldname => StructField(fieldname,StringType, true)))
@@ -49,7 +50,7 @@ object KafkaStream {
       val dataFrame = hc.sql(sql)
       dataFrame.show()
     })
-  }
+  }*/
 
 
   //处理数据
