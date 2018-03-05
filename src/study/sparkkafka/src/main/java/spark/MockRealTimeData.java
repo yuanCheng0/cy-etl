@@ -41,7 +41,7 @@ public class MockRealTimeData extends Thread {
 			
 			/*String log = new Date().getTime() + " " + province + " " + city + " "
 					+ random.nextInt(1000) + " " + random.nextInt(10);  */
-			String log = "小张";
+			String log = "小张|18";
 			producer.send(new KeyedMessage<Integer, String>("chengyuan", log));
 			System.out.println("发送成功。。。。。。。。");
 			try {

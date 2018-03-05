@@ -1,0 +1,14 @@
+查看所有topic列表
+bin/kafka-topics.sh --zookeeper hadoop.single:2181 --list
+创建kafka topic
+bin/kafka-topics.sh --zookeeper hadoop.single:2181 --create --topic chengyuan --partitions 2  --replication-factor 2
+
+
+
+ ./bin/spark-shell --master spark://hadoop.single:7077 --executor-memory 500m
+
+ spark-submit --master spark://10.102.34.248:7077 --class test.Streamings  sparkdemo-0.0.1-SNAPSHOT.jar
+
+ ./bin/spark-submit   --class spark.KafkaStream  --master  local[2] --executor-memory 512M --total-executor-cores 2 /home/hadoop/cy-etl.jar
+
+ zip -d cy-etl.jar META-INF/*.RSA META-INF/*.DSA META-INF/*.SF

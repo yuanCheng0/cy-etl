@@ -55,12 +55,13 @@ object KafkaStream {
       if (StringUtils.isBlank(line)) {
         errLine = line
       } else {
-        val arrLines = line.split("|")
-        if (arrLines.length < 3) {
+        val arrLines = line.split("\\|")
+        if (arrLines.length > 2) {
           errLine = line
         } else {
           try {
             people = new People(arrLines(0), arrLines(1))
+            println("test。。。。。")
           } catch {
             case e: Exception => errLine = line
           }
@@ -87,7 +88,7 @@ object KafkaStream {
     //统计总条数
     getCnt(totalCntDStream)
     //将错误数据写入文件
-    writeErrLogToFile(errLineDStream)
+//    writeErrLogToFile(errLineDStream)
     //将people数据写入hive
     writePeopleToHive(hc,peopleDStream)
   }
@@ -107,13 +108,14 @@ object KafkaStream {
     })
   }
   def writePeopleToHive(hc: HiveContext,peopleDStream: DStream[(People, String)]): Unit = {
-    val filedStr = "name,age";
+    val filedStr = "name,age"
     val schema = StructType(filedStr.split(",").map(fieldName => StructField(fieldName, StringType, true)))
     peopleDStream.foreachRDD(rdd => {
       val rowRdd = rdd.map(p => Row(p._1.name,p._1.age))
       val peopleDataFrame = hc.createDataFrame(rowRdd,schema)
       peopleDataFrame.registerTempTable("people_tmp")
-      val results = hc.sql("select name from people_tmp")
+      hc.sql("insert into table mydb.people select name,age from people_tmp")
+      val results = hc.sql(" select name from people_tmp")
       results.map(t => "=============>Name: " + t(0)).collect().foreach(println)
     })
 
