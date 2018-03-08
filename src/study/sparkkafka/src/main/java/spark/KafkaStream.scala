@@ -120,8 +120,8 @@ object KafkaStream {
       //      hc.sql("insert into table mydb.people select name,age from people_tmp")
       val results = hc.sql(" select name,age from people_tmp")
       val dt = "2018-03-01"
-      val output_tmp_dir = "hdfs://hadoop.single:9000/tmp/chengyuan/students/20180302/"
-      results.rdd.map(r => r.mkString("\177")).repartition(5).saveAsTextFile("hdfs://hadoop.single:9000/tmp/chengyuan/students/20180302/" + System.currentTimeMillis)
+      val output_tmp_dir = "hdfs://hadoop.single:9000/tmp/chengyuan/students/20180309/*/part-*"
+      results.rdd.map(r => r.mkString("\177")).repartition(5).saveAsTextFile("hdfs://hadoop.single:9000/tmp/chengyuan/students/20180309/" + System.currentTimeMillis)
       hc.sql(s"""load data inpath '$output_tmp_dir' into table mydb.students partition (dt='$dt')""")
       println("插入成功。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。")
       /*val dt = "2018-03-05"
