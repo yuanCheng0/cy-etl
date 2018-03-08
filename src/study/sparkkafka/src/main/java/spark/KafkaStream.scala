@@ -6,7 +6,7 @@ import java.util.Date
 import kafka.serializer.StringDecoder
 import org.apache.commons.lang3.StringUtils
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.Row
+import org.apache.spark.sql.{Row, SaveMode}
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
@@ -47,7 +47,8 @@ object KafkaStream {
   def parseLog(hc: HiveContext, orginLogDStream: InputDStream[(String, String)]): Unit = {
     val initDataDStream = orginLogDStream.map(data => {
       var errLine: String = null
-      var people: People = null
+      //      var people: People = null
+      var student: Students = null
       val now: Date = new Date()
       val dateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
       val date = dateFormat.format(now)
@@ -60,7 +61,9 @@ object KafkaStream {
           errLine = line
         } else {
           try {
-            people = new People(arrLines(0), arrLines(1))
+            student = new Students
+            student.setName(arrLines(0))
+            student.setAge(arrLines(0))
             println("test。。。。。")
           } catch {
             case e: Exception => errLine = line
@@ -68,9 +71,9 @@ object KafkaStream {
         }
       }
       if (errLine == null) {
-        ((date, 1), (errLine, date, 0), (people, date, 1))
+        ((date, 1), (errLine, date, 0), (student, date, 1))
       } else {
-        ((date, 1), (errLine, date, 1), (people, date, 0))
+        ((date, 1), (errLine, date, 1), (student, date, 0))
       }
     })
     //用于统计总行数
@@ -84,11 +87,11 @@ object KafkaStream {
     processLog(hc,totalCntDStream,errLineDStream,peopleDStream)
   }
 
-  def processLog(hc: HiveContext,totalCntDStream: DStream[(String, Int)], errLineDStream: DStream[(String,String)], peopleDStream: DStream[(People,String)]): Unit = {
+  def processLog(hc: HiveContext,totalCntDStream: DStream[(String, Int)], errLineDStream: DStream[(String,String)], peopleDStream: DStream[(Students,String)]): Unit = {
     //统计总条数
     getCnt(totalCntDStream)
     //将错误数据写入文件
-//    writeErrLogToFile(errLineDStream)
+    //    writeErrLogToFile(errLineDStream)
     //将people数据写入hive
     writePeopleToHive(hc,peopleDStream)
   }
@@ -107,16 +110,22 @@ object KafkaStream {
       rdd.saveAsTextFile("D:\\spark-test" + date + "\\")
     })
   }
-  def writePeopleToHive(hc: HiveContext,peopleDStream: DStream[(People, String)]): Unit = {
+  def writePeopleToHive(hc: HiveContext,peopleDStream: DStream[(Students, String)]): Unit = {
     val filedStr = "name,age"
     val schema = StructType(filedStr.split(",").map(fieldName => StructField(fieldName, StringType, true)))
     peopleDStream.foreachRDD(rdd => {
-      val rowRdd = rdd.map(p => Row(p._1.name,p._1.age))
+      val rowRdd = rdd.map(p => Row(p._1.getName,p._1.getAge))
       val peopleDataFrame = hc.createDataFrame(rowRdd,schema)
       peopleDataFrame.registerTempTable("people_tmp")
-      hc.sql("insert into table mydb.people select name,age from people_tmp")
-      val results = hc.sql(" select name from people_tmp")
-      results.map(t => "=============>Name: " + t(0)).collect().foreach(println)
+      //      hc.sql("insert into table mydb.people select name,age from people_tmp")
+      val results = hc.sql(" select name,age from people_tmp")
+      val dt = "2018-03-01"
+      val output_tmp_dir = "hdfs://hadoop.single:9000/tmp/chengyuan/students/20180302/"
+      results.rdd.map(r => r.mkString("\177")).repartition(5).saveAsTextFile("hdfs://hadoop.single:9000/tmp/chengyuan/students/20180302/" + System.currentTimeMillis)
+      hc.sql(s"""load data inpath '$output_tmp_dir' into table mydb.students partition (dt='$dt')""")
+      println("插入成功。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。。")
+      /*val dt = "2018-03-05"
+      results.write.mode(SaveMode.Append).partitionBy(dt).saveAsTable("students")*/
     })
 
   }
